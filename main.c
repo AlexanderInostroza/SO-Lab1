@@ -10,26 +10,25 @@ int main(){
     struct dirent *dir;
     FILE* pointer;
     d = opendir("./Archivos_de_prueba");
-    char prueba[70] = "Archivos_de_prueba/\0";
-
+    char* nombre;
+    int len= strlen("Archivos_de_prueba/\0");
     if (d){
         while ((dir = readdir(d)) != NULL){
             
             if (strstr(dir->d_name,".txt") != NULL){
-                memcpy(prueba,"Archivos_de_prueba/\0",strlen(prueba));
-                printf("%s\n", prueba);
-                strcat(prueba,dir->d_name);
-                printf("%s\n", prueba);
-                pointer = fopen(prueba,"r");
+                nombre = (char*)malloc(len+strlen(dir->d_name));
+                strcpy(nombre,"Archivos_de_prueba/");
+                strcat(nombre,dir->d_name);
+                pointer = fopen(nombre,"r");
                 if (pointer == NULL){
                     printf("No existe.");
                 }
                 
-                
+                free(nombre);
+                fclose(pointer);
                 
             }
         }
-        fclose(pointer);
         closedir(d);
     }
 
