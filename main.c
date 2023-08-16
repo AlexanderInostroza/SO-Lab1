@@ -7,6 +7,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <errno.h>
+#include <math.h>
 
 int buscar(void*_matriz, int size, char* palabra, char*orientacion){
     char (*matriz)[size] = _matriz;
@@ -77,15 +78,14 @@ int leerArchivo(char* palabra, char* direccion, FILE* pointer, char* new_dir){
     char opt[256],current_dir[256],current_dir2[256];
     buffer[0]= toupper(buffer[0]);
     getcwd(current_dir2,sizeof(current_dir2));
-    printf("%s",new_dir);
-    sprintf(current_dir, "%s/%s",  new_dir,buffer);
-    errno = 0;
-    if (opendir(buffer) == NULL && errno != EEXIST){
-        mkdir(current_dir, 0777);
-    }
-    mkdir(new_dir, 0777);
     
-    chdir(current_dir2);
+    sprintf(current_dir2, "GWD/%s",buffer);
+    errno = 0;
+    if (opendir(current_dir2) == NULL && errno != EEXIST){
+        mkdir(current_dir2, 0777);
+    }
+
+
     while(1){ // se recorre primera linea, cambiar por largo de la linea dividido en 2
         ch = fgetc(pointer);
         if(ch == '\n'){
@@ -96,9 +96,30 @@ int leerArchivo(char* palabra, char* direccion, FILE* pointer, char* new_dir){
         }
     }
     // printf("Largo de la matriz de %s:\t\t%d\n", palabra, largo);
+    
+    char* sizenum,*sizenum2;
+    sizenum = (char*)malloc((int)((ceil(log10(largo))+1)*sizeof(char))*2+1);
+    sizenum2 = (char*)malloc((int)((ceil(log10(largo))+1)*sizeof(char))*2+2);
+    sprintf(sizenum,"%d",largo);
+    strcpy(sizenum2,sizenum);
+    strcat(sizenum,"x");
+    strcat(sizenum,sizenum2);
+    getcwd(current_dir, sizeof(current_dir));
+    sprintf(current_dir, "GWD/%s/%s",buffer,sizenum);
+ 
+    errno = 0;
+
+    if (opendir(current_dir) == NULL && errno != EEXIST){
+        mkdir(current_dir, 0777);
+    }
+    //No tocar esto de arriba que crea bien las carpetas y me costo como 2 horas xd
+    //ahora solo queda guardar los archivos de su lugar de origen a la carpeta
+
     rewind(pointer); // reseteo del puntero
     fgets(buffer, 16, pointer); // leer primera linea
     char matriz[largo][largo];
+
+
     int i = 0;
     int j = 0;
     while(1){
@@ -128,6 +149,8 @@ int leerArchivo(char* palabra, char* direccion, FILE* pointer, char* new_dir){
     buffer[strcspn(buffer,"\n")] = '\0';
     buscar(matriz,largo,palabra,buffer);
     printf("ESTE ES EL FINAL DE LA LECTURA DE %s:    %ld \n",palabra,end_t-start_t);
+    free(sizenum);
+    free(sizenum2);
     return 1;
 }
 int horizontal(FILE* pointer, char* palabra, int size){
@@ -165,8 +188,8 @@ int main(){
     char new_dir[256];
     getcwd(current_dir, sizeof(current_dir));
 
-    sprintf(new_dir, "GWD");
-    mkdir(new_dir, 0777);
+    sprintf(current_dir, "GWD");
+    mkdir(current_dir, 0777);
      
     d = opendir("Archivos_de_prueba");
     char* direccion;
