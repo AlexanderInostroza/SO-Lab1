@@ -65,7 +65,7 @@ int leerArchivo(char* palabra, char* direccion, FILE* pointer, char* new_dir){
     clock_t start_t,end_t;
     pointer = fopen(direccion,"r"); // se abre el archivo
     start_t = clock();
-    printf("ESTE ES EL INICIO DE LA LECTURA DE %s:    %i \n",palabra,0);
+    //printf("ESTE ES EL INICIO DE LA LECTURA DE %s:    %i \n",palabra,0);
     if (pointer == NULL){ // ?
         printf("No existe.");
         return 0;
@@ -77,6 +77,7 @@ int leerArchivo(char* palabra, char* direccion, FILE* pointer, char* new_dir){
 
     char opt[256],current_dir[256],current_dir2[256];
     buffer[0]= toupper(buffer[0]);
+    buffer[strcspn(buffer,"\n")] = '\0';
     getcwd(current_dir2,sizeof(current_dir2));
     
     sprintf(current_dir2, "GWD/%s",buffer);
@@ -146,9 +147,17 @@ int leerArchivo(char* palabra, char* direccion, FILE* pointer, char* new_dir){
     }
     end_t = clock();
     fclose(pointer);
+    buffer[0]= toupper(buffer[0]);    
     buffer[strcspn(buffer,"\n")] = '\0';
     buscar(matriz,largo,palabra,buffer);
-    printf("ESTE ES EL FINAL DE LA LECTURA DE %s:    %ld \n",palabra,end_t-start_t);
+    
+    getcwd(current_dir,sizeof(current_dir));
+    sprintf(current_dir,"%s",direccion);
+    printf("%s\n",current_dir);
+    sprintf(current_dir2, "GWD/%s/%s/%s.txt",buffer,sizenum,palabra);
+    printf("%s  \n",current_dir2);
+    rename(current_dir,current_dir2);
+    //printf("ESTE ES EL FINAL DE LA LECTURA DE %s:    %ld \n",palabra,end_t-start_t);
     free(sizenum);
     free(sizenum2);
     return 1;
